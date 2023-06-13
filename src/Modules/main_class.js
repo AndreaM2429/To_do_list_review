@@ -1,14 +1,14 @@
 import trash from '../trash.png';
 import addTask from './add_task.js';
-import removeTask from './remove_task.js';
+// import removeTask from './remove_task.js';
 import editTask from './edit_task.js';
-import markComplete, { deleteComplete } from './complete_task.js';
+import * as deleted from './complete_task.js';
 
-const add = addTask;
-const removeone = removeTask;
-const editone = editTask;
-const complete = markComplete;
-const dropComplete = deleteComplete;
+// const add = addTask;
+// const removeone = removeTask;
+// const editone = editTask;
+// const complete = markComplete;
+// const dropComplete = deleteComplete;
 
 export default class Taks {
   static init() {
@@ -19,7 +19,8 @@ export default class Taks {
   constructor() {
     document.querySelector('form').addEventListener('submit', (e) => {
       e.preventDefault();
-      this.addNewTasks();
+      addTask(this.tasks, this.saveTask, this.loadTasks);
+      this.tableTask();
     });
 
     this.tasks = [];
@@ -28,10 +29,10 @@ export default class Taks {
     this.tableTask();
   }
 
-  addNewTasks = () => {
+  /* addNewTasks = () => {
     add(this.tasks, this.saveTask, this.loadTasks);
     this.tableTask();
-  }
+  } */
 
   tableTask = () => {
     const div = document.querySelector('.contain--tasks');
@@ -44,6 +45,7 @@ export default class Taks {
       taskli.className = 'flexrow pading';
       const inputTask = document.createElement('input');
       inputTask.type = 'checkbox';
+      inputTask.checked = elem.completed;
       const labelTask = document.createElement('input');
       labelTask.className = 'flexrow text taskdesc';
       labelTask.value = elem.description;
@@ -55,50 +57,55 @@ export default class Taks {
       taskli.appendChild(labelTask);
       taskli.appendChild(imgtrash);
 
-      if (elem.completed === false) {
-        inputTask.checked = false;
+      /* if (elem.completed === false) {
+        inputTask.checked = elem.completed;
       } else {
         inputTask.checked = true;
-      }
+      } */
 
       ul.appendChild(taskli);
       imgtrash.addEventListener('click', () => {
-        this.deleteTask(index);
+        deleted.removeTask(this.tasks, index, this.saveTask, this.loadTasks);
+        this.tableTask();
       });
       labelTask.addEventListener('focus', () => {
         taskli.style.backgroundColor = 'bisque';
       });
       labelTask.addEventListener('focusout', () => {
         taskli.style.backgroundColor = 'rgb(255, 243, 227)';
-        editone(this.tasks, index, labelTask.value, this.saveTask);
+        editTask(this.tasks, index, labelTask.value, this.saveTask);
       });
       inputTask.addEventListener('change', () => {
-        this.completeTask(index);
+        deleted.markComplete(this.tasks, index, this.saveTask, this.loadTasks);
       });
     });
 
     div.appendChild(ul);
     buttondrop.addEventListener('click', () => {
-      this.dropTaskComplete(this.saveTask, this.loadTasks);
+      const updateTask = deleted.deleteComplete(this.tasks);
+      this.tasks = updateTask;
+      this.saveTask();
+      this.loadTasks();
+      this.tableTask();
     });
   }
 
-  deleteTask = (index) => {
+  /* deleteTask = (index) => {
     removeone(this.tasks, index, this.saveTask, this.loadTasks);
     this.tableTask();
-  }
+  } */
 
-  dropTaskComplete = (save, load) => {
+  /* dropTaskComplete = (save, load) => {
     const updateTask = dropComplete(this.tasks);
     this.tasks = updateTask;
     save();
     load();
     this.tableTask();
-  }
+  } */
 
-  completeTask = (index) => {
+  /* completeTask = (index) => {
     complete(this.tasks, index, this.saveTask, this.loadTasks);
-  }
+  } */
 
   loadTasks = () => {
     const localstorageTasks = localStorage.getItem(this.name);
